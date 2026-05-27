@@ -48,15 +48,39 @@ import (
 )
 
 // TODO: напиши функцию downloadFile(ctx context.Context, url string) (string, error)
+func downloadFile(ctx context.Context, url string) (string, error) {
+	for {
+		select {
+		case <-time.After(2 * time.Second):
+			return "содержимое " + url + " ~", nil
+		case <-ctx.Done():
+			return "", ctx.Err()
+		}
+	}
+}
 
 func main() {
 	// Вызов 1: таймаут 3 секунды - должен успеть
 	// TODO: создай контекст с таймаутом 3s, вызови downloadFile, выведи результат
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	start := time.Now()
+	result, err := downloadFile(ctx, "https://example.com/file.txt")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(result, time.Since(start))
+	}
 
 	// Вызов 2: таймаут 1 секунда - не успеет
 	// TODO: создай контекст с таймаутом 1s, вызови downloadFile, выведи ошибку
-
-	_ = context.Background
-	_ = fmt.Println
-	_ = time.Second
+	ctx2, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	result2, err := downloadFile(ctx2, "https://example.com/file.txt")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(result2, time.Since(start))
+	}
 }
