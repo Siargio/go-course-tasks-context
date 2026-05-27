@@ -77,15 +77,46 @@ const requestIDKey contextKey = "request-id"
 const userIDKey contextKey = "user-id"
 
 // TODO: реализуй repository(ctx context.Context) error
+func repository(ctx context.Context) error {
+	requestID, _ := ctx.Value(requestIDKey).(string)
+	userID, _ := ctx.Value(userIDKey).(int)
+
+	fmt.Printf("[%s] repo: запрос для user=%d\n", requestID, userID)
+
+	if userID < 0 {
+		return errors.New("user not found")
+	}
+
+	fmt.Printf("[%s] repo: готово\n", requestID)
+	return nil
+}
 
 // TODO: реализуй service(ctx context.Context) error
+func service(ctx context.Context) error {
+	requestID, _ := ctx.Value(requestIDKey).(string)
+
+	fmt.Printf("[%s] service: обрабатываем пользователя\n", requestID)
+
+	if err := repository(ctx); err != nil {
+		return fmt.Errorf("service: %w", err)
+	}
+
+	return nil
+}
 
 // TODO: реализуй handler(ctx context.Context, userID int)
+func handler(ctx context.Context, userID int) {
+	requestID := fmt.Sprintf("req-%d", userID)
+
+	ctx = context.WithValue(ctx, requestIDKey, requestID)
+	ctx = context.WithValue(ctx, userIDKey, userID)
+
+	if err := service(ctx); err != nil {
+		fmt.Println("ошибка в handler:", err)
+	}
+}
 
 func main() {
 	handler(context.Background(), 42)
 	handler(context.Background(), -1)
-
-	_ = fmt.Sprintf
-	_ = errors.New
 }
