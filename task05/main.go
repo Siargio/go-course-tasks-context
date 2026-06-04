@@ -64,9 +64,9 @@ func handleRequest(ctx context.Context, name string, delay time.Duration) {
 	//   - создаёт дочерний контекст с таймаутом из параметра delay:
 	reqCtx, cancel := context.WithTimeout(ctx, delay)
 	defer cancel()
-
+	timer := time.After(1 * time.Second)
 	select {
-	case <-time.After(1 * time.Second):
+	case <-timer:
 		fmt.Printf("%s: запрос выполнен\n", name)
 	case <-reqCtx.Done():
 		fmt.Printf("%s: таймаут запроса (%v)\n", name, reqCtx.Err())
@@ -77,7 +77,7 @@ func handleRequest(ctx context.Context, name string, delay time.Duration) {
 func main() {
 	// TODO: создай appCtx с отменой
 	appCtx, appCancel := context.WithCancel(context.Background())
-	//defer appCancel()
+	defer appCancel()
 	// TODO: создай WaitGroup локально
 	var wg sync.WaitGroup
 
@@ -96,8 +96,7 @@ func main() {
 
 	// TODO: wg.Wait()
 	wg.Wait()
-	fmt.Println("оба запроса завершены, приложение продолжает работу")
-	appCancel()
 
+	fmt.Println("оба запроса завершены, приложение продолжает работу")
 	fmt.Println("приложение завершено")
 }
