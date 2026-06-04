@@ -61,13 +61,15 @@ import (
 // TODO: напиши функцию worker(ctx context.Context, id int, wg *sync.WaitGroup)
 func worker(ctx context.Context, id int, wg *sync.WaitGroup) {
 	defer wg.Done()
+	timer := time.After(400 * time.Millisecond)
+
 	for {
 		select {
 		case <-ctx.Done():
 			// завершиться
 			fmt.Printf("ворек %d: получил сигнал остановки, причина: %s\n", id, ctx.Err())
 			return
-		case <-time.After(400 * time.Millisecond):
+		case <-timer:
 			// работать
 			fmt.Printf("воркер %d: работаю...\n", id)
 		}
@@ -83,8 +85,8 @@ func main() {
 	var wg sync.WaitGroup
 
 	// TODO: запусти 3 воркера
+	wg.Add(3)
 	for i := 1; i <= 3; i++ {
-		wg.Add(1)
 		go worker(ctx, i, &wg)
 	}
 
