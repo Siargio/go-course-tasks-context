@@ -93,7 +93,10 @@ func repository(ctx context.Context) error {
 
 // TODO: реализуй service(ctx context.Context) error
 func service(ctx context.Context) error {
-	requestID, _ := ctx.Value(requestIDKey).(string)
+	requestID, ok := ctx.Value(requestIDKey).(string)
+	if !ok {
+		return fmt.Errorf("service: requestID invalid type")
+	}
 
 	fmt.Printf("[%s] service: обрабатываем пользователя\n", requestID)
 
