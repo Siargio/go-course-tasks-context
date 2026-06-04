@@ -49,9 +49,10 @@ import (
 
 // TODO: напиши функцию downloadFile(ctx context.Context, url string) (string, error)
 func downloadFile(ctx context.Context, url string) (string, error) {
+	timer := time.After(2 * time.Second)
 	for {
 		select {
-		case <-time.After(2 * time.Second):
+		case <-timer:
 			return "содержимое " + url + " ~", nil
 		case <-ctx.Done():
 			return "", ctx.Err()
